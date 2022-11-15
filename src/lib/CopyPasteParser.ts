@@ -18,7 +18,6 @@ export const parseCopyPaste = (input: string | undefined): IMilesInfo => {
 
     try {
         const transactionPositions = findTransactionPositions(lines)
-        console.log(transactionPositions)
         const transactions = transactionPositions.map(pos => getTransaction(lines, pos))
     
         return {

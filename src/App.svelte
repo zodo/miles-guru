@@ -1,9 +1,11 @@
 <script lang="ts">
-  import { parseCopyPaste } from "./lib/CopyPasteParser"
+  import { parseCopyPaste } from "./lib/CopyPasteParser";
+  import { optimize } from "./lib/CompensationOptimizer";
 
-  let copypasted: string
-  $: milesInfo = parseCopyPaste(copypasted)
-  $: transactions = milesInfo.transactions ?? []
+  let copypasted: string;
+  $: milesInfo = parseCopyPaste(copypasted);
+  $: transactions = milesInfo.transactions ?? [];
+  $: optimizationResult = optimize(milesInfo);
 </script>
 
 <main class="container">
@@ -48,14 +50,20 @@
 
   <article>
     <h3>Максимизируем рубли</h3>
-    <div>
-      <b>City Travel</b>
-      <small>8 035,00 ₽ / 9 000 миль</small>
-    </div>
-    <div>
-      <b>AviaKassa.com</b>
-      <small>22 696,00 ₽ / 24 000 миль</small>
-    </div>
-    <i>3 покупки на сумму 34 988 ₽ за 38 000 миль</i>
+    {#if optimizationResult.message}
+      <p>{optimizationResult.message}</p>
+    {:else}
+      {#each optimizationResult.transactions as transaction}
+        <div>
+          <b>{transaction.name}</b>
+          <small>{transaction.price} ₽ / {transaction.miles} миль</small>
+        </div>
+      {/each}
+      <br/>
+      <i
+        >{optimizationResult.transactions.length} покупки на сумму {optimizationResult.compensatedRubles}
+        ₽ за {optimizationResult.spendMiles} миль</i
+      >
+    {/if}
   </article>
 </main>
