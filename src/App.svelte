@@ -1,6 +1,9 @@
 <script lang="ts">
   import { parseCopyPaste } from "./lib/CopyPasteParser";
   import { optimize } from "./lib/CompensationOptimizer";
+  import { formatNumber } from "./lib/NumberFormatter";
+  import { exampleCopypastedText } from "./lib/ExampleText"
+  import Transaction from "./component/Transaction.svelte";
 
   let copypasted: string;
   $: milesInfo = parseCopyPaste(copypasted);
@@ -17,10 +20,10 @@
   <article>
     <div class="grid">
       <div>
-        <label for="copypasted">Скопируйте содержимое страницы Мили</label>
+        <p>На странице Мили в интернет банке <kbd class="smaller">Ctrl + A / Ctrl + C</kbd></p>
+        <p>Сюда <kbd class="smaller">Ctrl + V</kbd></p>
         <textarea
-          name="copypasted"
-          placeholder="Тут текст"
+          placeholder={exampleCopypastedText}
           rows="10"
           bind:value={copypasted}
         />
@@ -31,14 +34,11 @@
           <h6>Не получается распарсить</h6>
           <p>{milesInfo.message}</p>
         {:else}
-          <h6>Доступно миль {milesInfo.balance}</h6>
+          <h6>Доступно миль {formatNumber(milesInfo.balance)}</h6>
 
           <h6>Транзакции</h6>
           {#each transactions as transaction}
-            <div>
-              <b>{transaction.name}</b>
-              <small>{transaction.price} ₽ / {transaction.miles} миль</small>
-            </div>
+            <Transaction {transaction}/>
           {/each}
           {#if transactions.length === 0}
             <small>Нет транзакций</small>
@@ -54,15 +54,12 @@
       <p>{optimizationResult.message}</p>
     {:else}
       {#each optimizationResult.transactions as transaction}
-        <div>
-          <b>{transaction.name}</b>
-          <small>{transaction.price} ₽ / {transaction.miles} миль</small>
-        </div>
+        <Transaction {transaction}/>
       {/each}
       <br/>
       <i
-        >{optimizationResult.transactions.length} покупки на сумму {optimizationResult.compensatedRubles}
-        ₽ за {optimizationResult.spendMiles} миль</i
+        >{optimizationResult.transactions.length} покупки на сумму {formatNumber(optimizationResult.compensatedRubles)}
+        ₽ за {formatNumber(optimizationResult.spendMiles)} миль</i
       >
     {/if}
   </article>
